@@ -22,6 +22,11 @@
 require("oltp_common")
 
 function prepare_statements()
+    if not sysbench.opt.skip_trx then
+        prepare_begin()
+        prepare_commit()
+    end
+
     prepare_for_each_table("deletes")
 end
 

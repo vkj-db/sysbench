@@ -58,7 +58,7 @@ sysbench.cmdline.options = {
    batch_deletes =
       {"Number of batch DELETE combinations per transaction", 100},
    batch_appends =
-      {"Number of batch DELETE combinations per transaction", 100},
+      {"Number of batch APPENDS combinations per transaction", 100},
    range_selects =
       {"Enable/disable all range SELECT queries", true},
    auto_inc =
@@ -536,7 +536,6 @@ function execute_batch_deletes()
 
    for i = 1, sysbench.opt.batch_deletes do
       local id = get_id()
-      local k = get_id()
 
       param[tnum].deletes[1]:set(id)
       stmt[tnum].deletes:execute()

@@ -22,4 +22,8 @@ RUN make install
 WORKDIR /root
 RUN rm -rf sysbench
 
-CMD /bin/sh
+RUN apt-get -y install nano mysql-client
+
+COPY run.sh .
+
+CMD ["./run.sh"]
