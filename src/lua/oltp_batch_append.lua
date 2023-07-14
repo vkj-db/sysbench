@@ -35,7 +35,7 @@ function event()
         begin()
     end
 
-    execute_batch_inserts()
+    execute_batch_appends()
 
     if not sysbench.opt.skip_trx then
         commit()
