@@ -53,6 +53,12 @@ sysbench.cmdline.options = {
       {"Number of UPDATE non-index queries per transaction", 1},
    delete_inserts =
       {"Number of DELETE/INSERT combinations per transaction", 1},
+   batch_inserts =
+      {"Number of batch INSERT combinations per transaction", 100},
+   batch_deletes =
+      {"Number of batch DELETE combinations per transaction", 100},
+   batch_appends =
+      {"Number of batch DELETE combinations per transaction", 100},
    range_selects =
       {"Enable/disable all range SELECT queries", true},
    auto_inc =
@@ -267,7 +273,7 @@ local stmt_defs = {
       "DELETE FROM sbtest%u WHERE id=?",
       t.INT},
    inserts = {
-      "INSERT INTO sbtest%u (id, k, c, pad) VALUES (?, ?, ?, ?)",
+      "REPLACE INTO sbtest%u (id, k, c, pad) VALUES (?, ?, ?, ?)",
       t.INT, t.INT, {t.CHAR, 120}, {t.CHAR, 60}},
 }
 
@@ -401,6 +407,10 @@ local function get_id()
    return sysbench.rand.default(1, sysbench.opt.table_size)
 end
 
+local function get_possibly_new_id()
+   return sysbench.rand.default(sysbench.opt.table_size, 2*sysbench.opt.table_size)
+end
+
 function begin()
    stmt.begin:execute()
 end
@@ -486,6 +496,50 @@ function execute_delete_inserts()
 
       stmt[tnum].deletes:execute()
       stmt[tnum].inserts:execute()
+   end
+end
+
+function execute_batch_inserts()
+   local tnum = get_table_num()
+
+   for i = 1, sysbench.opt.batch_inserts do
+      local id = get_id()
+      local k = get_id()
+
+      param[tnum].inserts[1]:set(id)
+      param[tnum].inserts[2]:set(k)
+      param[tnum].inserts[3]:set_rand_str(c_value_template)
+      param[tnum].inserts[4]:set_rand_str(pad_value_template)
+
+      stmt[tnum].inserts:execute()
+   end
+end
+
+function execute_batch_appends()
+   local tnum = get_table_num()
+
+   for i = 1, sysbench.opt.batch_inserts do
+      local id = get_possibly_new_id()
+      local k = get_possibly_new_id()
+
+      param[tnum].inserts[1]:set(id)
+      param[tnum].inserts[2]:set(k)
+      param[tnum].inserts[3]:set_rand_str(c_value_template)
+      param[tnum].inserts[4]:set_rand_str(pad_value_template)
+
+      stmt[tnum].inserts:execute()
+   end
+end
+
+function execute_batch_deletes()
+   local tnum = get_table_num()
+
+   for i = 1, sysbench.opt.batch_deletes do
+      local id = get_id()
+      local k = get_id()
+
+      param[tnum].deletes[1]:set(id)
+      stmt[tnum].deletes:execute()
    end
 end
 
