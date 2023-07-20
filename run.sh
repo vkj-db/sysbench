@@ -43,7 +43,7 @@ fi
 # Prepare DB
 if [[ "${mode}" == "prepare" ]]; then
   # Run prepare
-  time sysbench --"${db_driver}"-host="${db_address}" --"${db_driver}"-port="${db_port}" --"${db_driver}"-user="${db_user}" --"${db_driver}"-password="${db_password}" --"${db_driver}"-db=sysbench --db-driver="${db_driver}" --table-size="${table_size}" --tables="${tables}" --time="${time}" --report-interval="${report_interval}" --threads="${tables}" \
+  time sysbench --"${db_driver}"-host="${db_address}" --"${db_driver}"-port="${db_port}" --"${db_driver}"-user="${db_user}" --"${db_driver}"-password="${db_password}" --"${db_driver}"-db=sysbench --db-driver="${db_driver}" --table-size="${table_size}" --tables="${tables}" --threads="${tables}" \
   --create-secondary=false \
   oltp_point_select prepare
   exit 0
@@ -55,8 +55,32 @@ run_bench() {
   --threads="$2" "$1" run
 }
 
+echo "Benchmark #1: (read) point select"
+echo "Threads: 1"
 run_bench oltp_point_select 1
+echo "Threads: 256"
 run_bench oltp_point_select 256
 
+echo "Benchmark #2: (write) batch inserts"
+echo "Threads: 1"
 run_bench oltp_batch_insert 1
+echo "Threads: 256"
 run_bench oltp_batch_insert 256
+
+echo "Benchmark #3: (read) batch appends"
+echo "Threads: 1"
+run_bench oltp_batch_append 1
+echo "Threads: 256"
+run_bench oltp_batch_append 256
+
+echo "Benchmark #4: (read and write) point select and batch inserts"
+echo "Threads: 256"
+run_bench oltp_point_select 256 &
+run_bench oltp_batch_insert 256 &
+wait
+
+echo "Benchmark #5: (read and write) point select and batch appends"
+echo "Threads: 256"
+run_bench oltp_point_select 256 &
+run_bench oltp_batch_append 256 &
+wait

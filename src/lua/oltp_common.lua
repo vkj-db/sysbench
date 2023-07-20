@@ -224,6 +224,8 @@ CREATE TABLE sbtest%d(
 
     con:bulk_insert_done()
 
+    -- this optimization is not working properly and leading to error
+
     --local rows_inserted = rows_to_insert
     --while rows_inserted < sysbench.opt.table_size do
     --    print(string.format("Inserted %d records into 'sbtest%d'",
